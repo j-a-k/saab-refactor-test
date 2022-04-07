@@ -5,31 +5,38 @@ namespace TicketManagementSystem
 {
     public class UserRepository : IDisposable
     {
+        private SqlConnection connection;
+        
+        public UserRepository()
+        {
+            var connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["database"].ConnectionString; 
+            connection = new SqlConnection(connectionString);
+        }
+        
         public User GetUser(string username)
         {
             // Assume this method does not need to change and is connected to a database with users populated.
             try
             {
-                var connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["database"].ConnectionString;
-
                 string sql = "SELECT TOP 1 FROM Users u WHERE u.Username == @p1";
-                using (var connection = new SqlConnection(connectionString))
+                connection.Open();
+
+                var command = new SqlCommand(sql, connection)
                 {
-                    connection.Open();
+                    CommandType = System.Data.CommandType.Text,
+                };
 
-                    var command = new SqlCommand(sql, connection)
-                    {
-                        CommandType = System.Data.CommandType.Text,
-                    };
+                command.Parameters.Add("@p1", System.Data.SqlDbType.NVarChar).Value = username;
 
-                    command.Parameters.Add("@p1", System.Data.SqlDbType.NVarChar).Value = username;
-
-                    return (User)command.ExecuteScalar();
-                }
+                return (User)command.ExecuteScalar();
             }
             catch (Exception)
             {
                 return null;
+            }
+            finally
+            {
+                connection.Close();
             }
         }
 
@@ -41,7 +48,8 @@ namespace TicketManagementSystem
 
         public void Dispose()
         {
-            // Free up resources
+            // Assume this method does not need to change.
+            connection.Dispose();
         }
     }
 }
