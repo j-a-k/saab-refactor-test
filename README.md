@@ -20,9 +20,9 @@ Due to dependencies in other areas of the larger product, there are a few limita
 
 ---
 
-Please submit your refactored code to us via a method of your choice (repository link, cloud share, zip file, etc.) prior to an interview to allow us to review it.
+Please submit your refactored code to us via a method of your choice (repository link, cloud share, zip file, etc.) to allow us to review it.
 Note that while you can clone this repository, you cannot create a branch or commit any code to the repository. It is read only.
 
-Try to limit time spent on this exercise to a maximum of 3 hours. If there is anything you don't have time to complete, write it down and we can discuss it during the interview.
+Try to limit time spent on this exercise to a maximum of 3 hours. If there is anything you don't have time to complete, write it down and include it with your submission.
 
 Good Luck!
