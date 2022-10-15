@@ -18,6 +18,8 @@ namespace TicketManagementSystem
         /// </summary>
         public Func<IEmailService> EmailServiceCreator { get; set; }
 
+        public Func<Ticket, int> RegisterTicket { get; set; }
+
         /// <summary>
         /// Constructor, used as is in program.cs so can't be changed to insert dependencies here
         /// </summary>
@@ -25,6 +27,7 @@ namespace TicketManagementSystem
         {
             UserRepositoryCreator = () => new UserRepository();
             EmailServiceCreator = () => new EmailServiceProxy();
+            RegisterTicket = TicketRepository.CreateTicket;
         }
 
         /// <summary>
@@ -60,8 +63,7 @@ namespace TicketManagementSystem
                 AccountManager = accountManager
             };
 
-            //todo potentially move this depencancy out in a similar way (though this class is light)
-            var id = TicketRepository.CreateTicket(ticket);
+            var id = RegisterTicket(ticket);
 
             // Return the id
             return id;
