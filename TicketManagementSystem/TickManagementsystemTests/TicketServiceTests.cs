@@ -25,5 +25,48 @@ namespace TickManagementsystemTests
             Assert.Throws<InvalidTicketException>(() => target.CreateTicket("foo", Priority.Low, "bar", "", DateTime.Now, false), "desc is empty");
 
         }
+
+        private class UserRepositoryMock : IUserRepository, IDisposable
+        {
+            public void Dispose()
+            {
+                //nothing to dispose
+            }
+
+            public User GetAccountManager()
+            {
+                return new User()
+                {
+                    Username = "TestManager",
+                    FirstName = "TMfirst",
+                    LastName = "TMLast"
+                };
+            }
+
+            public User GetUser(string username)
+            {
+                if (username == "TestUser")
+                {
+                    return new User()
+                    {
+                        Username = "TestUser",
+                        FirstName = "TUfirst",
+                        LastName = "TULast"
+                    };
+                }
+                return null;
+            }
+        }
+
+        [Test]
+        public void CreateTicketThrowsIfUnkownUser()
+        {
+            var target = new TicketService();
+            target.userRepositoryCreator = () => new UserRepositoryMock();
+
+            Assert.Throws<UnknownUserException>(() => target.CreateTicket("foo", Priority.Low, null, "bar", DateTime.Now, false), "null user");
+            Assert.Throws<UnknownUserException>(() => target.CreateTicket("foo", Priority.Low, "NotAUser", "bar", DateTime.Now, false), "unkown user user");
+
+        }
     }
 }

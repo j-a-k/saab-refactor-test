@@ -3,16 +3,16 @@ using System.Data.SqlClient;
 
 namespace TicketManagementSystem
 {
-    public class UserRepository : IDisposable
+    public class UserRepository : IUserRepository
     {
         private SqlConnection connection;
-        
+
         public UserRepository()
         {
-            var connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["database"].ConnectionString; 
+            var connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["database"].ConnectionString;
             connection = new SqlConnection(connectionString);
         }
-        
+
         public User GetUser(string username)
         {
             // Assume this method does not need to change and is connected to a database with users populated.
