@@ -30,14 +30,12 @@ namespace TicketManagementSystem
         public int CreateTicket(string t, Priority p, string assignedTo, string desc, DateTime d, bool isPayingCustomer)
         {
             CheckIfTitleAndDescriptionAreValid(t, desc);
+
             User user = GetUserOrThrow(assignedTo);
+
             p = RaisePriorityIfNeeded(p, t, d);
 
-            if (p == Priority.High)
-            {
-                var emailService = EmailServiceCreator.Invoke();
-                emailService.SendEmailToAdministrator(t, assignedTo);
-            }
+            EmailIfHighPriority(p, t, assignedTo);
 
             double price = 0;
             User accountManager = null;
@@ -70,6 +68,15 @@ namespace TicketManagementSystem
 
             // Return the id
             return id;
+        }
+
+        private void EmailIfHighPriority(Priority priority, string title, string assignedTo)
+        {
+            if (priority == Priority.High)
+            {
+                var emailService = EmailServiceCreator.Invoke();
+                emailService.SendEmailToAdministrator(title, assignedTo);
+            }
         }
 
         private static Priority RaisePriorityIfNeeded(Priority priority, string title, DateTime dateTime)
