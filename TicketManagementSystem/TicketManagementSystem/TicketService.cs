@@ -37,6 +37,28 @@ namespace TicketManagementSystem
 
             EmailIfHighPriority(p, t, assignedTo);
 
+            (double price, User accountManager) = SetPriceAndAccountManager(isPayingCustomer, p);
+
+            var ticket = new Ticket()
+            {
+                Title = t,
+                AssignedUser = user,
+                Priority = p,
+                Description = desc,
+                Created = d,
+                PriceDollars = price,
+                AccountManager = accountManager
+            };
+
+            //todo potentially move this depencancy out in a similar way (though this class is light)
+            var id = TicketRepository.CreateTicket(ticket);
+
+            // Return the id
+            return id;
+        }
+
+        private (double price, User accountManager) SetPriceAndAccountManager(bool isPayingCustomer, Priority p)
+        {
             double price = 0;
             User accountManager = null;
             if (isPayingCustomer)
@@ -52,22 +74,7 @@ namespace TicketManagementSystem
                     price = 50;
                 }
             }
-
-            var ticket = new Ticket()
-            {
-                Title = t,
-                AssignedUser = user,
-                Priority = p,
-                Description = desc,
-                Created = d,
-                PriceDollars = price,
-                AccountManager = accountManager
-            };
-
-            var id = TicketRepository.CreateTicket(ticket);
-
-            // Return the id
-            return id;
+            return (price, accountManager);
         }
 
         private void EmailIfHighPriority(Priority priority, string title, string assignedTo)
