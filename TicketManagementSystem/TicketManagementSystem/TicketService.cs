@@ -38,6 +38,8 @@ namespace TicketManagementSystem
         /// <param name="d"></param>
         /// <param name="isPayingCustomer"></param>
         /// <returns>id for ticket as registered in the TicketRepository</returns>
+        /// <exception cref="UnknownUserException">if username is not valid</exception>
+        /// <exception cref="InvalidTicketException">if title or description empty or null</exception>
         public int CreateTicket(string t, Priority p, string assignedTo, string desc, DateTime d, bool isPayingCustomer)
         {
             CheckIfTitleAndDescriptionAreValid(t, desc);
@@ -66,6 +68,29 @@ namespace TicketManagementSystem
 
             // Return the id
             return id;
+        }
+
+        /// <summary>
+        /// Assign a user to a ticket by username and ticket id
+        /// </summary>
+        /// <param name="id">of the ticket to assign</param>
+        /// <param name="username">of the user to assign to the ticket</param>
+        /// <exception cref="ApplicationException">if ticket id is not valid</exception>
+        /// <exception cref="UnknownUserException">if username is not valid</exception>
+        public void AssignTicket(int id, string username)
+        {
+            User user = GetUserOrThrow(username);
+
+            var ticket = TicketRepository.GetTicket(id);
+
+            if (ticket == null)
+            {
+                throw new ApplicationException("No ticket found for id " + id);
+            }
+
+            ticket.AssignedUser = user;
+
+            TicketRepository.UpdateTicket(ticket);
         }
 
         private (double price, User accountManager) SetPriceAndAccountManager(bool isPayingCustomer, Priority p)
@@ -140,27 +165,6 @@ namespace TicketManagementSystem
             }
         }
 
-        public void AssignTicket(int id, string username)
-        {
-            User user = GetUserOrThrow(username);
-
-            var ticket = TicketRepository.GetTicket(id);
-
-            if (ticket == null)
-            {
-                throw new ApplicationException("No ticket found for id " + id);
-            }
-
-            ticket.AssignedUser = user;
-
-            TicketRepository.UpdateTicket(ticket);
-        }
-
-        private void WriteTicketToFile(Ticket ticket)
-        {
-            var ticketJson = JsonSerializer.Serialize(ticket);
-            File.WriteAllText(Path.Combine(Path.GetTempPath(), $"ticket_{ticket.Id}.json"), ticketJson);
-        }
     }
 
     public enum Priority
