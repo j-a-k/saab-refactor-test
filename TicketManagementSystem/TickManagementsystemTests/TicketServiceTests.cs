@@ -97,6 +97,21 @@ namespace TickManagementsystemTests
 
 
         [Test]
+        [TestCase("Crash")]
+        [TestCase("Important")]
+        [TestCase("Failure")]
+        public void CreateTicketRaisesPriorityOnceIfMagicWordAndOld(String magicWord)
+        {
+            var target = new TicketService();
+            target.UserRepositoryCreator = () => new UserRepositoryMock();
+
+            var tn = target.CreateTicket(magicWord, Priority.Low, "TestUser", "bar", DateTime.Now - TimeSpan.FromHours(2), false);
+            var ticket = TicketRepository.GetTicket(tn);
+            Assert.That(ticket.Priority, Is.EqualTo(Priority.Medium));
+        }
+
+
+        [Test]
         public void CreateTicketRaisesLowPriorityIfOld()
         {
             var target = new TicketService();
@@ -105,7 +120,56 @@ namespace TickManagementsystemTests
             var tn = target.CreateTicket("foo", Priority.Low, "TestUser", "bar", DateTime.Now - TimeSpan.FromHours(2), false);
             var ticket = TicketRepository.GetTicket(tn);
             Assert.That(ticket.Priority, Is.EqualTo(Priority.Medium));
+        }
 
+        //todo repeat cases for medium -> high reprioritizing
+
+        [Test]
+        public void CreateTicketEmailIfPriorityHigh()
+        {
+            var target = new TicketService();
+            target.UserRepositoryCreator = () => new UserRepositoryMock();
+
+            var tn = target.CreateTicket("foo", Priority.High, "TestUser", "bar", DateTime.Now - TimeSpan.FromHours(2), false);
+            var ticket = TicketRepository.GetTicket(tn);
+            Assert.That(ticket.Priority, Is.EqualTo(Priority.High));
+            //todo assert we used the email
+        }
+
+        [Test]
+        public void CreateTicketCheckPriceNotPaying()
+        {
+            var target = new TicketService();
+            target.UserRepositoryCreator = () => new UserRepositoryMock();
+
+            var tn = target.CreateTicket("foo", Priority.Low, "TestUser", "bar", DateTime.Now , false);
+            var ticket = TicketRepository.GetTicket(tn);
+            Assert.That(ticket.PriceDollars, Is.EqualTo(0));
+
+        }
+
+        [Test]
+        [TestCase(Priority.Low)]
+        [TestCase(Priority.Medium)]
+        public void CreateTicketCheckPricePayingLowMedium(Priority priority)
+        {
+            var target = new TicketService();
+            target.UserRepositoryCreator = () => new UserRepositoryMock();
+
+            var tn = target.CreateTicket("foo", priority, "TestUser", "bar", DateTime.Now , true);
+            var ticket = TicketRepository.GetTicket(tn);
+            Assert.That(ticket.PriceDollars, Is.EqualTo(50));
+        }
+
+        [Test]
+        public void CreateTicketCheckPricePayingHigh()
+        {
+            var target = new TicketService();
+            target.UserRepositoryCreator = () => new UserRepositoryMock();
+
+            var tn = target.CreateTicket("foo", Priority.High, "TestUser", "bar", DateTime.Now, true);
+            var ticket = TicketRepository.GetTicket(tn);
+            Assert.That(ticket.PriceDollars, Is.EqualTo(100));
         }
     }
 }
