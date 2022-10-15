@@ -182,5 +182,34 @@ namespace TickManagementsystemTests
             var ticket = TicketRepository.GetTicket(tn);
             Assert.That(ticket.PriceDollars, Is.EqualTo(100));
         }
+
+        [Test]
+        public void AssignTicketNoUser()
+        {
+            var target = new TicketService();
+            target.UserRepositoryCreator = () => new UserRepositoryMock();
+            Assert.Throws<UnknownUserException>(() => target.AssignTicket(3, "foo"));
+        }
+
+        [Test]
+        public void AssignTicketNoTicket()
+        {
+            var target = new TicketService();
+            target.UserRepositoryCreator = () => new UserRepositoryMock();
+            Assert.Throws<ApplicationException>(() => target.AssignTicket(3, "TestUser"));
+        }
+
+        [Test]
+        public void AssignTicket()
+        {
+            var target = new TicketService();
+            target.UserRepositoryCreator = () => new UserRepositoryMock();
+            var ticket = new Ticket();
+            var tn = TicketRepository.CreateTicket(ticket);
+            target.AssignTicket(tn, "TestUser");
+
+            Assert.That(ticket.AssignedUser.Username, Is.EqualTo("TestUser"));
+        }
+
     }
 }

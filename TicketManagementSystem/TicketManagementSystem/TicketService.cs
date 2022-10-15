@@ -18,7 +18,6 @@ namespace TicketManagementSystem
         /// </summary>
         public Func<IEmailService> EmailServiceCreator { get; set; }
 
-        public Func<Ticket, int> RegisterTicket { get; set; }
 
         /// <summary>
         /// Constructor, used as is in program.cs so can't be changed to insert dependencies here
@@ -27,7 +26,6 @@ namespace TicketManagementSystem
         {
             UserRepositoryCreator = () => new UserRepository();
             EmailServiceCreator = () => new EmailServiceProxy();
-            RegisterTicket = TicketRepository.CreateTicket;
         }
 
         /// <summary>
@@ -63,7 +61,8 @@ namespace TicketManagementSystem
                 AccountManager = accountManager
             };
 
-            var id = RegisterTicket(ticket);
+            //could remove dependency on this in a similar way but its a light class so leaving it for now
+            var id = TicketRepository.CreateTicket(ticket);
 
             // Return the id
             return id;
@@ -114,20 +113,20 @@ namespace TicketManagementSystem
             return priority;
         }
 
-        private User GetUserOrThrow(string assignedTo)
+        private User GetUserOrThrow(string username)
         {
             User user = null;
             using (var ur = UserRepositoryCreator.Invoke())
             {
-                if (assignedTo != null)
+                if (username != null)
                 {
-                    user = ur.GetUser(assignedTo);
+                    user = ur.GetUser(username);
                 }
             }
 
             if (user == null)
             {
-                throw new UnknownUserException("User " + assignedTo + " not found");
+                throw new UnknownUserException("User " + username + " not found");
             }
 
             return user;
@@ -143,19 +142,7 @@ namespace TicketManagementSystem
 
         public void AssignTicket(int id, string username)
         {
-            User user = null;
-            using (var ur = new UserRepository())
-            {
-                if (username != null)
-                {
-                    user = ur.GetUser(username);
-                }
-            }
-
-            if (user == null)
-            {
-                throw new UnknownUserException("User not found");
-            }
+            User user = GetUserOrThrow(username);
 
             var ticket = TicketRepository.GetTicket(id);
 
