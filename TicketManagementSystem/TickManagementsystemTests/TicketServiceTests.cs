@@ -62,7 +62,7 @@ namespace TickManagementsystemTests
         public void CreateTicketThrowsIfUnkownUser()
         {
             var target = new TicketService();
-            target.userRepositoryCreator = () => new UserRepositoryMock();
+            target.UserRepositoryCreator = () => new UserRepositoryMock();
 
             Assert.Throws<UnknownUserException>(() => target.CreateTicket("foo", Priority.Low, null, "bar", DateTime.Now, false), "null user");
             Assert.Throws<UnknownUserException>(() => target.CreateTicket("foo", Priority.Low, "NotAUser", "bar", DateTime.Now, false), "unkown user user");

@@ -8,14 +8,14 @@ namespace TicketManagementSystem
 {
     public class TicketService
     {
-        public Func<IUserRepository> userRepositoryCreator { get; set; }
+        public Func<IUserRepository> UserRepositoryCreator { get; set; }
 
         /// <summary>
         /// Constructor, used as is in program.cs so can't be changed to insert dependencies here
         /// </summary>
         public TicketService()
         {
-            userRepositoryCreator = () => new UserRepository();
+            UserRepositoryCreator = () => new UserRepository();
         }
 
         public int CreateTicket(string t, Priority p, string assignedTo, string desc, DateTime d, bool isPayingCustomer)
@@ -27,7 +27,7 @@ namespace TicketManagementSystem
             }
 
             User user = null;
-            using (var ur = userRepositoryCreator.Invoke())
+            using (var ur = UserRepositoryCreator.Invoke())
             {
                 if (assignedTo != null)
                 {
