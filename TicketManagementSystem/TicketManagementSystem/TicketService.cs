@@ -29,11 +29,7 @@ namespace TicketManagementSystem
 
         public int CreateTicket(string t, Priority p, string assignedTo, string desc, DateTime d, bool isPayingCustomer)
         {
-            // Check if t or desc are null or if they are invalid and throw exception
-            if (t == null || desc == null || t == "" || desc == "")
-            {
-                throw new InvalidTicketException("Title or description were null");
-            }
+            CheckIfTitleAndDescriptionAreValid(t, desc);
 
             User user = null;
             using (var ur = UserRepositoryCreator.Invoke())
@@ -113,6 +109,14 @@ namespace TicketManagementSystem
 
             // Return the id
             return id;
+        }
+
+        private static void CheckIfTitleAndDescriptionAreValid(string title, string description)
+        {
+            if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(description))
+            {
+                throw new InvalidTicketException("Title or description were null");
+            }
         }
 
         public void AssignTicket(int id, string username)

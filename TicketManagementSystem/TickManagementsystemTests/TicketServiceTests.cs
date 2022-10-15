@@ -112,17 +112,17 @@ namespace TickManagementsystemTests
 
 
         [Test]
-        public void CreateTicketRaisesLowPriorityIfOld()
+        [TestCase(Priority.Low, Priority.Medium)]
+        [TestCase(Priority.Medium, Priority.High)]
+        public void CreateTicketRaisesPriorityIfOld(Priority input, Priority expected)
         {
             var target = new TicketService();
             target.UserRepositoryCreator = () => new UserRepositoryMock();
 
-            var tn = target.CreateTicket("foo", Priority.Low, "TestUser", "bar", DateTime.Now - TimeSpan.FromHours(2), false);
+            var tn = target.CreateTicket("foo", input, "TestUser", "bar", DateTime.Now - TimeSpan.FromHours(2), false);
             var ticket = TicketRepository.GetTicket(tn);
-            Assert.That(ticket.Priority, Is.EqualTo(Priority.Medium));
+            Assert.That(ticket.Priority, Is.EqualTo(expected));
         }
-
-        //todo repeat cases for medium -> high reprioritizing
 
         private class MethodCalledException : Exception { }
 
