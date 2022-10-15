@@ -78,7 +78,7 @@ namespace TicketManagementSystem
             if (isPayingCustomer)
             {
                 // Only paid customers have an account manager.
-                accountManager = new UserRepository().GetAccountManager();
+                accountManager = UserRepositoryCreator.Invoke().GetAccountManager();
                 if (p == Priority.High)
                 {
                     price = 100;

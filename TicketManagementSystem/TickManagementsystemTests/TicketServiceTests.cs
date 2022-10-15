@@ -59,13 +59,37 @@ namespace TickManagementsystemTests
         }
 
         [Test]
-        public void CreateTicketThrowsIfUnkownUser()
+        public void CreateTicketThrowsIfUnknownUser()
         {
             var target = new TicketService();
             target.UserRepositoryCreator = () => new UserRepositoryMock();
 
             Assert.Throws<UnknownUserException>(() => target.CreateTicket("foo", Priority.Low, null, "bar", DateTime.Now, false), "null user");
             Assert.Throws<UnknownUserException>(() => target.CreateTicket("foo", Priority.Low, "NotAUser", "bar", DateTime.Now, false), "unkown user user");
+
+        }
+
+        [Test]
+        public void CreateTicketKeepsPriorityIfRecent()
+        {
+            var target = new TicketService();
+            target.UserRepositoryCreator = () => new UserRepositoryMock();
+
+            var tn = target.CreateTicket("foo", Priority.Low, "TestUser", "bar", DateTime.Now, false);
+            var ticket = TicketRepository.GetTicket(tn);
+            Assert.That(ticket.Priority, Is.EqualTo(Priority.Low));
+
+        }
+
+        [Test]
+        public void CreateTicketRaisesLowPriorityIfOld()
+        {
+            var target = new TicketService();
+            target.UserRepositoryCreator = () => new UserRepositoryMock();
+
+            var tn = target.CreateTicket("foo", Priority.Low, "TestUser", "bar", DateTime.Now - TimeSpan.FromHours(2), false);
+            var ticket = TicketRepository.GetTicket(tn);
+            Assert.That(ticket.Priority, Is.EqualTo(Priority.Medium));
 
         }
     }
