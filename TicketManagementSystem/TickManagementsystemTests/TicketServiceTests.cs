@@ -82,6 +82,21 @@ namespace TickManagementsystemTests
         }
 
         [Test]
+        [TestCase("Crash")]
+        [TestCase("Important")]
+        [TestCase("Failure")]
+        public void CreateTicketRaisesPriorityIfMagicWord(String magicWord)
+        {
+            var target = new TicketService();
+            target.UserRepositoryCreator = () => new UserRepositoryMock();
+
+            var tn = target.CreateTicket(magicWord, Priority.Low, "TestUser", "bar", DateTime.Now, false);
+            var ticket = TicketRepository.GetTicket(tn);
+            Assert.That(ticket.Priority, Is.EqualTo(Priority.Medium));
+        }
+
+
+        [Test]
         public void CreateTicketRaisesLowPriorityIfOld()
         {
             var target = new TicketService();
