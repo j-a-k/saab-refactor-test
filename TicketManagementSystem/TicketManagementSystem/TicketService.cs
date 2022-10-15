@@ -8,7 +8,15 @@ namespace TicketManagementSystem
 {
     public class TicketService
     {
+        /// <summary>
+        /// property to allow test UserRepository to be injected nstead of real one
+        /// </summary>
         public Func<IUserRepository> UserRepositoryCreator { get; set; }
+
+        /// <summary>
+        /// property to allow test IEmailService to be injected nstead of real one
+        /// </summary>
+        public Func<IEmailService> EmailServiceCreator { get; set; }
 
         /// <summary>
         /// Constructor, used as is in program.cs so can't be changed to insert dependencies here
@@ -16,6 +24,7 @@ namespace TicketManagementSystem
         public TicketService()
         {
             UserRepositoryCreator = () => new UserRepository();
+            EmailServiceCreator = () => new EmailServiceProxy();
         }
 
         public int CreateTicket(string t, Priority p, string assignedTo, string desc, DateTime d, bool isPayingCustomer)
@@ -69,7 +78,7 @@ namespace TicketManagementSystem
 
             if (p == Priority.High)
             {
-                var emailService = new EmailServiceProxy();
+                var emailService = EmailServiceCreator.Invoke();
                 emailService.SendEmailToAdministrator(t, assignedTo);
             }
 

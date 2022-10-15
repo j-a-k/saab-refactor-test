@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using EmailService;
 using NUnit.Framework;
 using TicketManagementSystem;
 
@@ -124,16 +124,27 @@ namespace TickManagementsystemTests
 
         //todo repeat cases for medium -> high reprioritizing
 
+        private class MethodCalledException : Exception { }
+
+        /// <summary>
+        /// would be better to use Moq or similar here but not sure if we can add this to the project
+        /// </summary>
+        private class EmailServiceMock : IEmailService
+        {
+            public void SendEmailToAdministrator(string incidentTitle, string assignedTo)
+            {
+                throw new MethodCalledException();
+            }
+        }
+
         [Test]
         public void CreateTicketEmailIfPriorityHigh()
         {
             var target = new TicketService();
             target.UserRepositoryCreator = () => new UserRepositoryMock();
+            target.EmailServiceCreator = () => new EmailServiceMock();
 
-            var tn = target.CreateTicket("foo", Priority.High, "TestUser", "bar", DateTime.Now - TimeSpan.FromHours(2), false);
-            var ticket = TicketRepository.GetTicket(tn);
-            Assert.That(ticket.Priority, Is.EqualTo(Priority.High));
-            //todo assert we used the email
+            Assert.Throws<MethodCalledException>( () => target.CreateTicket("foo", Priority.High, "TestUser", "bar", DateTime.Now, false));
         }
 
         [Test]
