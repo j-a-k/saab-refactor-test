@@ -31,33 +31,7 @@ namespace TicketManagementSystem
         {
             CheckIfTitleAndDescriptionAreValid(t, desc);
             User user = GetUserOrThrow(assignedTo);
-
-            var priorityRaised = false;
-            if (d < DateTime.UtcNow - TimeSpan.FromHours(1))
-            {
-                if (p == Priority.Low)
-                {
-                    p = Priority.Medium;
-                    priorityRaised = true;
-                }
-                else if (p == Priority.Medium)
-                {
-                    p = Priority.High;
-                    priorityRaised = true;
-                }
-            }
-
-            if ((t.Contains("Crash") || t.Contains("Important") || t.Contains("Failure")) && !priorityRaised)
-            {
-                if (p == Priority.Low)
-                {
-                    p = Priority.Medium;
-                }
-                else if (p == Priority.Medium)
-                {
-                    p = Priority.High;
-                }
-            }
+            p = RaisePriorityIfNeeded(p, t, d);
 
             if (p == Priority.High)
             {
@@ -96,6 +70,22 @@ namespace TicketManagementSystem
 
             // Return the id
             return id;
+        }
+
+        private static Priority RaisePriorityIfNeeded(Priority priority, string title, DateTime dateTime)
+        {
+            if (dateTime < DateTime.UtcNow - TimeSpan.FromHours(1) || title.Contains("Crash") || title.Contains("Important") || title.Contains("Failure"))
+            {
+                if (priority == Priority.Low)
+                {
+                    return Priority.Medium;
+                }
+                else if (priority == Priority.Medium)
+                {
+                    return Priority.High;
+                }
+            }
+            return priority;
         }
 
         private User GetUserOrThrow(string assignedTo)
