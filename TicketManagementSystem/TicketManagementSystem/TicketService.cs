@@ -30,20 +30,7 @@ namespace TicketManagementSystem
         public int CreateTicket(string t, Priority p, string assignedTo, string desc, DateTime d, bool isPayingCustomer)
         {
             CheckIfTitleAndDescriptionAreValid(t, desc);
-
-            User user = null;
-            using (var ur = UserRepositoryCreator.Invoke())
-            {
-                if (assignedTo != null)
-                {
-                    user = ur.GetUser(assignedTo);
-                }
-            }
-
-            if (user == null)
-            {
-                throw new UnknownUserException("User " + assignedTo + " not found");
-            }
+            User user = GetUserOrThrow(assignedTo);
 
             var priorityRaised = false;
             if (d < DateTime.UtcNow - TimeSpan.FromHours(1))
@@ -109,6 +96,25 @@ namespace TicketManagementSystem
 
             // Return the id
             return id;
+        }
+
+        private User GetUserOrThrow(string assignedTo)
+        {
+            User user = null;
+            using (var ur = UserRepositoryCreator.Invoke())
+            {
+                if (assignedTo != null)
+                {
+                    user = ur.GetUser(assignedTo);
+                }
+            }
+
+            if (user == null)
+            {
+                throw new UnknownUserException("User " + assignedTo + " not found");
+            }
+
+            return user;
         }
 
         private static void CheckIfTitleAndDescriptionAreValid(string title, string description)
