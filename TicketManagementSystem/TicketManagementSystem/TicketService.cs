@@ -27,6 +27,16 @@ namespace TicketManagementSystem
             EmailServiceCreator = () => new EmailServiceProxy();
         }
 
+        /// <summary>
+        /// Create a Ticket
+        /// </summary>
+        /// <param name="t">title, must not be null or emtpy</param>
+        /// <param name="p">priority</param>
+        /// <param name="assignedTo">username to assign to, must be valid</param>
+        /// <param name="desc">description, must not be null or emtpy</param>
+        /// <param name="d"></param>
+        /// <param name="isPayingCustomer"></param>
+        /// <returns>id for ticket as registered in the TicketRepository</returns>
         public int CreateTicket(string t, Priority p, string assignedTo, string desc, DateTime d, bool isPayingCustomer)
         {
             CheckIfTitleAndDescriptionAreValid(t, desc);
